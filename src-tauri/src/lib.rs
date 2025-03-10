@@ -17,11 +17,6 @@ fn decode_base64(encoded: String) -> Result<String, String> {
         Err(_) => Err("Base64 디코딩 변환 중 에러가 발생했습니다".to_string()),
     }
 }
-
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
