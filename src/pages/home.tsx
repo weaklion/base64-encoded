@@ -4,16 +4,21 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { RotateCcw } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function App() {
-  // const [encode, setEncode] = useState("");
-  // const [decode, setDecode] = useState("");
   const [output, setOutput] = useState("");
   const [input, setInput] = useState("");
+  const [urlSafe, setUrlSafe] = useState(false);
 
   const handleEncode = async () => {
-    const result = (await invoke("encode_base64", { input })) as string;
-    setOutput(result);
+    if (urlSafe) {
+      const result = (await invoke("encode_url_safe", { input })) as string;
+      setOutput(result);
+    } else {
+      const result = (await invoke("encode_base64", { input })) as string;
+      setOutput(result);
+    }
   };
 
   const handleRefresh = () => {
@@ -22,11 +27,17 @@ function App() {
   };
 
   const handleDecode = async () => {
-    const result = (await invoke("decode_base64", {
-      encoded: input,
-    }).catch((error) => setOutput(error))) as string;
-
-    setOutput(result);
+    if (urlSafe) {
+      const result = (await invoke("decode_url_safe", {
+        encoded: input,
+      }).catch((error) => setOutput(error))) as string;
+      setOutput(result);
+    } else {
+      const result = (await invoke("decode_base64", {
+        encoded: input,
+      }).catch((error) => setOutput(error))) as string;
+      setOutput(result);
+    }
   };
 
   return (
@@ -42,7 +53,7 @@ function App() {
             onChange={(e) => setInput(e.target.value)}
             className="mb-4"
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-4">
             <Button onClick={handleEncode}>Encode</Button>
             <Button onClick={handleDecode} variant="outline">
               Decode
@@ -51,6 +62,21 @@ function App() {
               <RotateCcw />
               Refresh
             </Button>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="url-safe"
+                checked={urlSafe}
+                onCheckedChange={(checked) => setUrlSafe(checked as boolean)}
+              />
+              <label
+                htmlFor="url-safe"
+                className="text-sm font-medium leading-none"
+              >
+                URL-Safe
+              </label>
+            </div>
           </div>
           <Textarea
             placeholder="Output will appear here..."
